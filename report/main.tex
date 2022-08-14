@@ -1,0 +1,192 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% fphw Assignment
+% LaTeX Template
+% Version 1.0 (27/04/2019)
+%
+% This template originates from:
+% https://www.LaTeXTemplates.com
+%
+% Authors:
+% Class by Felipe Portales-Oliva (f.portales.oliva@gmail.com) with template 
+% content and modifications by Vel (vel@LaTeXTemplates.com)
+%
+% Template (this file) License:
+% CC BY-NC-SA 3.0 (http://creativecommons.org/licenses/by-nc-sa/3.0/)
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%----------------------------------------------------------------------------------------
+%	PACKAGES AND OTHER DOCUMENT CONFIGURATIONS
+%----------------------------------------------------------------------------------------
+
+\documentclass[
+	12pt, % Default font size, values between 10pt-12pt are allowed
+	%letterpaper, % Uncomment for US letter paper size
+	%spanish, % Uncomment for Spanish
+]{fphw}
+
+% Template-specific packages
+\usepackage[utf8]{inputenc} % Required for inputting international characters
+\usepackage[T1]{fontenc} % Output font encoding for international characters
+\usepackage{mathpazo} % Use the Palatino font
+\usepackage{subcaption}
+\usepackage{siunitx}
+\usepackage{graphicx} % Required for including images
+
+\usepackage{booktabs} % Required for better horizontal rules in tables
+
+\usepackage{listings} % Required for insertion of code
+\usepackage{hyperref}
+\usepackage{enumerate} % To modify the enumerate environment
+\usepackage{todonotes}
+\usepackage[numbers]{natbib}
+%----------------------------------------------------------------------------------------
+%	ASSIGNMENT INFORMATION
+%----------------------------------------------------------------------------------------
+
+\title{DFT calculation on Cu FCC crystal} % Assignment title
+
+\author{Matteo Finco} % Student name
+
+\date{March, 2022} % Due date
+
+\institute{Università degli studi di Padova, Dipartimento di Scienze Chimiche} % Institute or school name
+
+\class{COMPUTATIONAL METHODS FOR MATERIALS SCIENCE} % Course or class name
+
+\professor{Francesco Ancillotto, Alberta Ferrarini} % Professor or teacher in charge of the assignment
+
+%----------------------------------------------------------------------------------------
+
+\begin{document}
+\bibliographystyle{plainnat} 
+\maketitle % Output the assignment title, created automatically using the information in the custom commands above
+
+%----------------------------------------------------------------------------------------
+%	ASSIGNMENT CONTENT
+%----------------------------------------------------------------------------------------
+
+\section*{Abstract}
+In this work, the Cu FCC crystal is studied computationally using QuantumEspresso software package. The probed properties include lattice constant, bulk modulus, band structure, energy gap and electronic density of states. Finally, the results are compared with experimental results found in literature obtaining differences within .... \todo{fill up results}
+
+
+
+%----------------------------------------------------------------------------------------
+
+\section*{Introduction}
+The theoretical background that is assumed in the computational method deployed involves requires the adoption of the Kohn-Sham equations \ref{kohn-sham} in an ab-initio framework. 
+\begin{equation}{\label{kohn-sham}}
+	[-\frac{\hbar^2}{2m}\nabla^2 + V_{H}(\mathbf{r}) + V_{ext}(\mathbf{r}) + V_{xc}(\mathbf{r})]\phi_{i} = \epsilon_{i}\phi_{i}
+\end{equation}
+This set equations allows for the efficient solution of many-electrons problems once the pseudopotentials are known thanks to the Hoehnberg-Kohn theorem and the variational principle. 
+The first states that given an external potential, the charge density of the system is determined univocally. 
+While the variational principle states that any trial function different from the self-function will lead to higher energies. 
+Therefore, once the potential is fixed is possible to identify a charge distribution which will lead to the minimum energy for the system. \todo{review this part}
+\medskip
+\\
+In particular, the terms included in the Kohn-Sham equations take into account the kinetic energy $-\frac{\hbar^2}{2m}\nabla^2 $, the coulombic interaction between electrons through the Hartree potential $V_{H} $, the coulombic interaction between nuclei in the form of external potential $ V_{ext} $ and the exchange-correlation term $ V_{xc} $ which is depoted to represent the non-coulombic interaction involved in the description of the multibody system.
+Through the Local Density Approximation (LDA), it is assumed that the electron gas is homogeneous and therefore the $\rho(\mathbf{r}) $ is locally uniform and ultimately is possible to express the exchange-correlation functional $E_{xc} $ \ref{Exc}
+\begin{equation}{\label{Exc}}
+	E_{xc}[\rho]= \int d\bar{\mathbf{r}} \rho(\mathbf{r}) \epsilon_{xc}^{hom}(\rho(\mathbf{r}))
+\end{equation}
+Where $ \epsilon_{xc}^{hom}(\rho(\mathbf{r})) $is a function of the charge density and not a functional of the local density.
+The problem is solved numerically in order to define $\rho(\mathbf{r}) $ and the $ \epsilon_{i} $.
+The algorithms embedded in Quantum Espresso operate through the iterations whose steps are reported in Figure \ref{method} in order to minimize the energy of the system and therefore compute the optimal charge density distribution.
+\begin{figure}
+	\includegraphics[width=4 cm]{method}
+	%\todo{cite \href{https://people.sissa.it/~degironc/FIST/Slides/4-5\%20pseudo.pdf}{this}}
+	\caption{Workflow of sel-consistent calculations used in ab initio methods taken from \citep{noauthor_notitle_nodate}.}
+	\label{method}
+\end{figure}
+The obtained results, among other thing that will be described later, were used to apply an analysis based on the Murnaghan equation of state in order to determine the bulk modulus $ K$ and the equilibrium lattice parameter $ a_{rel}$ through the fitting of the Eqn. \ref{murn} based on the input parameter $ a_{rel}$ and the total energy $ E_{tot}$ output from the plane-wave self-consistent functional calculation.
+\begin{equation}{\label{murn}}
+	E(V)=E(V_{0})+ \frac{K_{0}V}{K'_{0}}[ \frac{(V_{0}/V)^{K'_{0}}}{K'_{0}-1} +1]- \frac{K_{0}V_{0}}{K'_{0}-1}
+\end{equation}
+In this equation, $ E(V_{0})$ stands for the total energy for the lattice at equilibrium, $ V_{0}$ is the volume of the cell at equilibrium.%...go on from here
+%----------------------------------------------------------------------------------------
+\section*{Calculations and Results}
+The calculations were performed using Quantum Espresso v6.7 \citep{giannozzi_advanced_2017} installed on a Quantum Mobile 21.06.04 machine. 
+The DFT calculations require the use of a pseudopotential, in this work three pseudopotentials retrieved from the work of \citet{garrity_pseudopotentials_2014} constituting the GBRV library, available at this \href{http://physics.rutgers.edu/gbrv}{link}.
+These potentials consist in a PBE, a PBEsol and a LDA, which difference consists in the exchange-correlation functionals employed in the preparation of the pseudopotential. 
+%explanation of differences
+The LDA pseudopotential uses the local density approximation  to establish the exchange-correlation functional.
+While PBE functionals belong to the class of GGA (Generalized Gradient Approximation) functionals while being an ultrasoft potential should reduce the energy cut-off needed to obtain realistic results.\citep{perdew_generalized_1996}\\
+The difference between PBE and PBEsol consist in a correction of the parameters $\mu$ and $\beta$, respectively representing expansion parameters of the enhancement factor and the correlation energy.\cite{perdew_restoring_2008} \\
+As a first step, the appropriate cutoff energy and number of k points in the ground state computation were evaluated using as lattice parameter the one reported in literature, being $a_{0}=3.615$ \r{A}. \citep{krull_lattice_1970}\\
+By doing this, the graphs shown in Figure \ref{pre} were obtained from the application of the PBE pseudopotential, determining the minimum cut-off energy and number of k points to be 40 Ry and 27 (3x3x3 grid but with an offset), respectively.
+Also for the other pseudopotentials, the same parameters were identified to be optimal for the convergence of the energy of the system.
+\begin{figure}
+	\centering
+	\begin{subfigure}{0.4\textwidth}
+		\includegraphics[width=\textwidth]{Graph1}
+		\caption{Total energy dependence on the cut-off energy plotted for a variable number of k-points using the PBE pseudopotential.}
+		\label{fig:first}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}{0.4\textwidth}
+		\includegraphics[width=\textwidth]{Graph2}
+		\caption{Total energy dependence on the number of k-points using a fixed cut-off energy of 40 Ry using the PBE pseudopotential.}
+		\label{fig:second}
+	\end{subfigure}
+\caption{Summarization of parameter optimization}
+	\label{pre}
+\end{figure}
+Then, the calculations have been performed starting from the determination from the Murnaghan equation of state of the optimized lattice parameter and the bulk modulus.
+The total energy of the lattice was computed varying the lattice parameter within 3.2 \r{A} and 4 \r{A}, and was fitted using the \texttt{ev.x} executable within Quantum Espresso.
+The results of the fitting process are listed in Table \ref{Murn}.
+\\
+\begin{table} [h!]
+	\centering
+	\begin{tabular}{lll}
+		\cline{1-2}
+		Pseudopotential	&Lattice parameter ($ a_{0}$, \r{A}) & Bulk modulus ($ K_{0}$, GPa) \\
+		LDA				&3.51614						&175.3\\
+		PBE				&3.598							&162.4\\
+		PBEsol			&3.56218						&165.1\\
+		 \cline{1-2}
+	\end{tabular}
+	\caption{Table reporting the obtained values for the equilibrium lattice parameter and the bulk modulus for bulk fcc Cu crystal using different pseudopotentials.}
+	\label{Murn}
+\end{table}
+Furthermore, the band structure and the connected density of states were computed and the graphs in Figure \ref{bande} using respectively the executables \texttt{bands.x}. 
+The path in the reciprocal space was chosen from the one stated by \citet{setyawan_high-throughput_2010}, by sampling 1000 points for 14 bands and was prepared using the tool in XCrysDen \cite{kokalj_xcrysdennew_1999}. 
+The number of bands was chosen follonwing the indications in the documentations relative to the "bands" calculation type for \texttt{pw.x}. 
+The Fermi energy obtained is 15.838 eV.
+\begin{figure}
+	\centering
+	\includegraphics[width=\textwidth]{bande-dos-relazione}
+	\caption{(left) Band structure and (right) density of states obtained by \textit{ab initio} calculations for bulk FCC copper crystal.}
+	\label{bande}
+\end{figure}
+
+%----------------------------------------------------------------------------------------
+\section*{Comparison with literature and experimental results}
+In order to evaluate the goodness of the results of the calculation, they have been compared to existing literature in both simulation and experimental evaluation methods.
+The obtained value lattice parameter has a very good agreement with the one experimentally measured, respectively $3.598$ \r{A} and $3.615$ \r{A}, having a relative error of $0.4 \%$.
+However, the computed elastic bulk modulus is slightly different from the accepted value of $140$ GPa (see \cite{chrzanowski_bulk_2018}) , being $162.4$ GPa, resulting in a $16\%$ relative error.
+For comparison with other \textit{ab initio} calculations, the paper by \cite{mishra_electronic_2017} was picked to compare the computed band structure with a remarkable resemblance, as reported in Figure \ref{cfr-bands}.\todo{correggere con confronto tra pp}
+\begin{figure}[h!]
+	\centering
+	\begin{subfigure}{0.4\textwidth}
+		\includegraphics[width=\textwidth]{grafico-bande-paper}
+	\end{subfigure}
+	\begin{subfigure}{0.4\textwidth}
+		\includegraphics[width=\textwidth]{bande-cfr-paper}
+	\end{subfigure}
+	\caption{(left) Band structure computed in this study and (right) band structure computed in ref.\cite{mishra_electronic_2017}.}
+	\label{cfr-bands}
+\end{figure}
+Despite the good agreement of the band structure with previous works, the computed value for the Fermi level obtained is really different from the one tabulated. 
+Specifically, the obtained value for the Fermi energy is 15.838 eV, while the accepted value is 7.05 eV, which can be expressed as a $112\%$ relative error, highlighting a low reliability in the estimation of this property of the metals from ab initio methods.
+\todo{find reason, ask professor}
+
+%----------------------------------------------------------------------------------------
+\section*{Conclusion}
+It is possible to conclude that employing a relatively small mesh (3x3x3) and a moderate cut-off energy (40 Ry) leads to an accurate estimation of the lattice parameter, with only $0.4\%$ error and the band structure of a bulk copper crystal. 
+Some properties show a low degree of agreement with the expected values, such as the estimated bulk modulus and the estimated Fermi energy. 
+In particular, the estimation of Fermi energy results to be particularly unreliable for the  
+
+%----------------------------------------------------------------------------------------
+
+\bibliography{riferimenti}
+\end{document}
