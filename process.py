@@ -9,33 +9,37 @@ def thermo(filename):
     n = int(n_str)
     print(n)
     log_import = lmp.lammps_thermo.load(filename, 'Step', 'Loop')
-    time = uniform_filter1d(log_import.data[10:, 0], 10) / 1000
+    time = log_import.data[10:, 0] / 1000
     # temperature
-    Temp = uniform_filter1d(log_import.data[10:, 1], 10)
+    Temp = uniform_filter1d(log_import.data[10:, 1], 1)
     avgT = np.average(Temp)
     stdT = np.std(Temp)
-    Tperc = Temp * 100 / avgT
+    T_perc = Temp * 100 / avgT
     # potential energy
-    PotEng = uniform_filter1d(log_import.data[10:, 2], 10)
+    PotEng = uniform_filter1d(log_import.data[10:, 2], 1)
     avgE = np.average(PotEng)
     stdE = np.std(PotEng)
-    Eperc = PotEng * 100 / avgE
+    E_perc = PotEng * 100 / avgE
     # density
     L = uniform_filter1d(log_import.data[10:, 6], 10)
+    z = uniform_filter1d(log_import.data[10:, 8], 10)
     avgL = np.average(L)
-    Vol= L**3
+    avgZ = np.average(z)
+    Vol = z * L**2
     Dens = (n**3) * 18*1.6603 / Vol
     avgD = np.average(Dens)
     stdD = np.std(Dens)
     # plotting T e Pot energy
-    plt.plot(time, Tperc, label="Temperature")
-    plt.plot(time, Eperc, label="Potential Energy")
-    plt.ylabel("Thermodynamic properties [% avg.]")
-    plt.xlabel("Time [ps]")
+    plt.plot(time, T_perc, label="Temperature")
+    plt.plot(time, E_perc, label="Potential Energy")
+    plt.ylabel("Thermodynamic properties [% avg.]", fontsize=16)
+    plt.xlabel("Time [ps]", fontsize=16)
     plt.legend()
-    plt.savefig('log' + n_str + '.png', format='png')
+    plt.tight_layout()
+    plt.savefig('log' + n_str + '.eps', format='png')
     plt.show()
     print(avgT, "+-", stdT)
     print(avgE, "+-", stdE)
-    print(avgD, "+-", stdD)
-    return avgL
+    print(avgD, r"$\pm$", stdD)
+    return avgZ
+
