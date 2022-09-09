@@ -32,9 +32,9 @@
 \usepackage{subcaption}
 \usepackage{siunitx}
 \usepackage{graphicx} % Required for including images
-
+\graphicspath{{figures}]}
 \usepackage{booktabs} % Required for better horizontal rules in tables
-
+\usepackage{epstopdf} %converting to PDF
 \usepackage{listings} % Required for insertion of code
 \usepackage{hyperref}
 \usepackage{enumerate} % To modify the enumerate environment
@@ -44,17 +44,17 @@
 %	ASSIGNMENT INFORMATION
 %----------------------------------------------------------------------------------------
 
-\title{DFT calculation on Cu FCC crystal} % Assignment title
+\title{Study of water self-diffusion between walls} % Assignment title
 
 \author{Matteo Finco} % Student name
 
-\date{March, 2022} % Due date
+\date{September, 2022} % Due date
 
 \institute{Università degli studi di Padova, Dipartimento di Scienze Chimiche} % Institute or school name
 
 \class{COMPUTATIONAL METHODS FOR MATERIALS SCIENCE} % Course or class name
 
-\professor{Francesco Ancillotto, Alberta Ferrarini} % Professor or teacher in charge of the assignment
+\professor{Alberta Ferrarini} % Professor or teacher in charge of the assignment
 
 %----------------------------------------------------------------------------------------
 
@@ -67,125 +67,134 @@
 %----------------------------------------------------------------------------------------
 
 \section*{Abstract}
-In this work, the Cu FCC crystal is studied computationally using QuantumEspresso software package. The probed properties include lattice constant, bulk modulus, band structure, energy gap and electronic density of states. Finally, the results are compared with experimental results found in literature obtaining differences within .... \todo{fill up results}
-
 
 
 %----------------------------------------------------------------------------------------
 
-\section*{Introduction}
-The theoretical background that is assumed in the computational method deployed involves requires the adoption of the Kohn-Sham equations \ref{kohn-sham} in an ab-initio framework. 
-\begin{equation}{\label{kohn-sham}}
-	[-\frac{\hbar^2}{2m}\nabla^2 + V_{H}(\mathbf{r}) + V_{ext}(\mathbf{r}) + V_{xc}(\mathbf{r})]\phi_{i} = \epsilon_{i}\phi_{i}
+\section{Introduction}
+Molecular Dynamics (MD) consists in a computational technique which exploits the use of classical potentials to simulate the interactions between components of the desired system.
+This caveat allows to greatly expand the accessible length of the trajectories and size of the system when compared to quantum mechanical methods such as Density Functional Theory (DFT).
+This is made possible by a classical approach that relies on statistical thermodynamics to guide the system through physically meaningful trajectories in the phase space (eq.\ref{phase-space}) and describes the kinetics of individual components following Newtonian mechanics, eq.\ref{Newton}, which establishes the observable properties of the simulation.
+\begin{equation}
+	E = H (\textbf{p}^{N}, \textbf{r}^{N})
+	\label{phase-space}
 \end{equation}
-This set equations allows for the efficient solution of many-electrons problems once the pseudopotentials are known thanks to the Hoehnberg-Kohn theorem and the variational principle. 
-The first states that given an external potential, the charge density of the system is determined univocally. 
-While the variational principle states that any trial function different from the self-function will lead to higher energies. 
-Therefore, once the potential is fixed is possible to identify a charge distribution which will lead to the minimum energy for the system. \todo{review this part}
-\medskip
-\\
-In particular, the terms included in the Kohn-Sham equations take into account the kinetic energy $-\frac{\hbar^2}{2m}\nabla^2 $, the coulombic interaction between electrons through the Hartree potential $V_{H} $, the coulombic interaction between nuclei in the form of external potential $ V_{ext} $ and the exchange-correlation term $ V_{xc} $ which is depoted to represent the non-coulombic interaction involved in the description of the multibody system.
-Through the Local Density Approximation (LDA), it is assumed that the electron gas is homogeneous and therefore the $\rho(\mathbf{r}) $ is locally uniform and ultimately is possible to express the exchange-correlation functional $E_{xc} $ \ref{Exc}
-\begin{equation}{\label{Exc}}
-	E_{xc}[\rho]= \int d\bar{\mathbf{r}} \rho(\mathbf{r}) \epsilon_{xc}^{hom}(\rho(\mathbf{r}))
+\begin{equation}
+	\textbf{F}_{i} = -\frac{\delta V(\textbf{r}_{1}, \textbf{r}_{2},..., \textbf{r}_{i},..., \textbf{r}_{n})}{\delta \textbf{r}_{i}}
+	\label{Newton}
 \end{equation}
-Where $ \epsilon_{xc}^{hom}(\rho(\mathbf{r})) $is a function of the charge density and not a functional of the local density.
-The problem is solved numerically in order to define $\rho(\mathbf{r}) $ and the $ \epsilon_{i} $.
-The algorithms embedded in Quantum Espresso operate through the iterations whose steps are reported in Figure \ref{method} in order to minimize the energy of the system and therefore compute the optimal charge density distribution.
-\begin{figure}
-	\includegraphics[width=4 cm]{method}
-	%\todo{cite \href{https://people.sissa.it/~degironc/FIST/Slides/4-5\%20pseudo.pdf}{this}}
-	\caption{Workflow of sel-consistent calculations used in ab initio methods taken from \citep{noauthor_notitle_nodate}.}
-	\label{method}
-\end{figure}
-The obtained results, among other thing that will be described later, were used to apply an analysis based on the Murnaghan equation of state in order to determine the bulk modulus $ K$ and the equilibrium lattice parameter $ a_{rel}$ through the fitting of the Eqn. \ref{murn} based on the input parameter $ a_{rel}$ and the total energy $ E_{tot}$ output from the plane-wave self-consistent functional calculation.
-\begin{equation}{\label{murn}}
-	E(V)=E(V_{0})+ \frac{K_{0}V}{K'_{0}}[ \frac{(V_{0}/V)^{K'_{0}}}{K'_{0}-1} +1]- \frac{K_{0}V_{0}}{K'_{0}-1}
+Thermodynamic and mechanic considerations are linked by a postulate, which states that thermodynamic properties can be extrapolated as time averages of the observables in a microscopic system, as expressed in eq.\ref{postulate} .
+\begin{equation}
+	\langle f\rangle = \lim\limits_{T \to \infty} \frac{1}{T} \int_{0}^{T} f(\textbf{r}^{N}(t),\textbf{p}^{N}(t)) dt 
+	\label{postulate}
 \end{equation}
-In this equation, $ E(V_{0})$ stands for the total energy for the lattice at equilibrium, $ V_{0}$ is the volume of the cell at equilibrium.%...go on from here
-%----------------------------------------------------------------------------------------
-\section*{Calculations and Results}
-The calculations were performed using Quantum Espresso v6.7 \citep{giannozzi_advanced_2017} installed on a Quantum Mobile 21.06.04 machine. 
-The DFT calculations require the use of a pseudopotential, in this work three pseudopotentials retrieved from the work of \citet{garrity_pseudopotentials_2014} constituting the GBRV library, available at this \href{http://physics.rutgers.edu/gbrv}{link}.
-These potentials consist in a PBE, a PBEsol and a LDA, which difference consists in the exchange-correlation functionals employed in the preparation of the pseudopotential. 
-%explanation of differences
-The LDA pseudopotential uses the local density approximation  to establish the exchange-correlation functional.
-While PBE functionals belong to the class of GGA (Generalized Gradient Approximation) functionals while being an ultrasoft potential should reduce the energy cut-off needed to obtain realistic results.\citep{perdew_generalized_1996}\\
-The difference between PBE and PBEsol consist in a correction of the parameters $\mu$ and $\beta$, respectively representing expansion parameters of the enhancement factor and the correlation energy.\cite{perdew_restoring_2008} \\
-As a first step, the appropriate cutoff energy and number of k points in the ground state computation were evaluated using as lattice parameter the one reported in literature, being $a_{0}=3.615$ \r{A}. \citep{krull_lattice_1970}\\
-By doing this, the graphs shown in Figure \ref{pre} were obtained from the application of the PBE pseudopotential, determining the minimum cut-off energy and number of k points to be 40 Ry and 27 (3x3x3 grid but with an offset), respectively.
-Also for the other pseudopotentials, the same parameters were identified to be optimal for the convergence of the energy of the system.
-\begin{figure}
-	\centering
-	\begin{subfigure}{0.4\textwidth}
-		\includegraphics[width=\textwidth]{Graph1}
-		\caption{Total energy dependence on the cut-off energy plotted for a variable number of k-points using the PBE pseudopotential.}
-		\label{fig:first}
-	\end{subfigure}
-	\hfill
-	\begin{subfigure}{0.4\textwidth}
-		\includegraphics[width=\textwidth]{Graph2}
-		\caption{Total energy dependence on the number of k-points using a fixed cut-off energy of 40 Ry using the PBE pseudopotential.}
-		\label{fig:second}
-	\end{subfigure}
-\caption{Summarization of parameter optimization}
-	\label{pre}
-\end{figure}
-Then, the calculations have been performed starting from the determination from the Murnaghan equation of state of the optimized lattice parameter and the bulk modulus.
-The total energy of the lattice was computed varying the lattice parameter within 3.2 \r{A} and 4 \r{A}, and was fitted using the \texttt{ev.x} executable within Quantum Espresso.
-The results of the fitting process are listed in Table \ref{Murn}.
-\\
-\begin{table} [h!]
-	\centering
-	\begin{tabular}{lll}
-		\cline{1-2}
-		Pseudopotential	&Lattice parameter ($ a_{0}$, \r{A}) & Bulk modulus ($ K_{0}$, GPa) \\
-		LDA				&3.51614						&175.3\\
-		PBE				&3.598							&162.4\\
-		PBEsol			&3.56218						&165.1\\
-		 \cline{1-2}
-	\end{tabular}
-	\caption{Table reporting the obtained values for the equilibrium lattice parameter and the bulk modulus for bulk fcc Cu crystal using different pseudopotentials.}
-	\label{Murn}
-\end{table}
-Furthermore, the band structure and the connected density of states were computed and the graphs in Figure \ref{bande} using respectively the executables \texttt{bands.x}. 
-The path in the reciprocal space was chosen from the one stated by \citet{setyawan_high-throughput_2010}, by sampling 1000 points for 14 bands and was prepared using the tool in XCrysDen \cite{kokalj_xcrysdennew_1999}. 
-The number of bands was chosen follonwing the indications in the documentations relative to the "bands" calculation type for \texttt{pw.x}. 
-The Fermi energy obtained is 15.838 eV.
-\begin{figure}
-	\centering
-	\includegraphics[width=\textwidth]{bande-dos-relazione}
-	\caption{(left) Band structure and (right) density of states obtained by \textit{ab initio} calculations for bulk FCC copper crystal.}
-	\label{bande}
-\end{figure}
+Constraints on the evolution of the system are set by the applied ensemble, which is a set of thermodynamic properties that is kept constant during the simulations.
+When simulating dynamic properties, either the $NVE$ micro-canonical ensemble\todo{cite Mark, Nilsson 2001} or the isothermal-isobaric ensemble\todo{cite Jorgensen} can be employed.
+However, the simplification of the interactions necessary to treat classically a system on the molecular scale comes at the cost of accuracy since the specific interactions are appointed arbitrarily through classical fields.
+For this reason, systems often recurring in literature, such as water, have been modeled in a great number of ways to better fit the specific purpose of some studies or to increase consistency with experimental findings.\todo{cite Tsimpanogiannis 2019}
+For example, TIP3P\todo{cite Jorgensen et al. 1983} model represents a reparametrization of the O-O interactions to better fit to the experimental data of the radial distribution function.
+Later, the very same model has been updated to feature the Ewald summation rather than short nonbonded truncation schemes.\todo{cite Price and Brooks 2004}
+Moreover, the use of Molecular Dynamics has acquired great relevance in the simulation of confined fluids.
+In the work of \todo{cite Yeh \& Hummer}, they arrive to the expression of the relation between the diffusion coefficient for bulk fluids and quantity estimated by applying Periodic Boundary Conditions (PBD), as reported in eq.\ref{Dpbc}.
+\begin{equation}
+	D_{PBC} = D_{0} - \frac{k_{B}T\xi}{2d \pi \eta L}
+	\label{Dpbc}
+\end{equation}
+In this equation, $D_{PBC}$ is the diffusion coefficient calculated from calculations running on a unit cell replicated by PBCs, $D_{0}$ is the bulk diffusion coefficient of the fluid, $k_{B}T$ is the thermal quantum, $\xi$ is a constant related to the Ewald summation, $d$ is the number of dimensions in which the unit cell is limited, $\eta$ is the viscosity and $L$ is the size of the unit cell.
+Such relationship allows the extrapolation of the bulk diffusion coefficient from the intercept of the linear regression of the D(1/L) data with the $y$ axis.
+Additionally, from the slope of such regression is possible to estimate the value of viscosity of the fluid.
 
 %----------------------------------------------------------------------------------------
-\section*{Comparison with literature and experimental results}
-In order to evaluate the goodness of the results of the calculation, they have been compared to existing literature in both simulation and experimental evaluation methods.
-The obtained value lattice parameter has a very good agreement with the one experimentally measured, respectively $3.598$ \r{A} and $3.615$ \r{A}, having a relative error of $0.4 \%$.
-However, the computed elastic bulk modulus is slightly different from the accepted value of $140$ GPa (see \cite{chrzanowski_bulk_2018}) , being $162.4$ GPa, resulting in a $16\%$ relative error.
-For comparison with other \textit{ab initio} calculations, the paper by \cite{mishra_electronic_2017} was picked to compare the computed band structure with a remarkable resemblance, as reported in Figure \ref{cfr-bands}.\todo{correggere con confronto tra pp}
+\section{Calculations and Results}
+Calculations were run using the force fields and models provided by prof. Ferrarini using LAMMPS (version 4 May 2022).
+For the analysis of data the \texttt{lammps-thermo} package\todo{cite github lammps-thermo} was used along with Python scripts, analysis of the self-diffusion coefficient was performed on OriginPro 2018 and trajectory visualization was possible thanks to the OVITO application.\todo{cite ovito}
+\subsection{Input files}
+Periodic boundary conditions were allowed on all dimensions, while on the confined dimension trespassing was prevented by using a Lennard-Jones 9-3 potential set by the command:
+\begin{verbatim}	
+	fix	       zwall1 all wall/lj93 zlo EDGE 1.0 1.0 2.5 pbc yes
+	fix	       zwall2 all wall/lj93 zhi EDGE 1.0 1.0 2.5 pbc yes
+\end{verbatim}
+This command places a wall that needs a sufficient amount of energy $\epsilon =$ 1 Kcal/mol to not be trespassed, a low enough  Van der Waals radius $\sigma = 1 \r{A}$ and cutoff distance $r_{cut} =$ 2.5 \r{A} to perturb excessively the system enclosed.
+The box was set to allocate replicas of the water molecule with a 10x10 base, to offer enough statistical significance, while the height between 1 to 10 molecules.
+Since the system was found to converge to realistic values of density, the interaction and execution parameters were not varied.
+From an interaction point of view, this meant that the accuracy of long range interactions was kept to the $10^{-5}$ level and the force field was the updated version of TIP3P provided by \todo{cite Price and Brooks}
+Energy and force minimization for the first relaxation step was set to be achieved once they were stable, less than 1000 minimizing iterations and 10000 force-energy evaluations were sufficient  in all cases.
+Velocity distributions were created at 300 K using as seed 1298371.
+The execution of the simulations required the application of the isothermal-isobaric ensemble in stable conditions, first for $10^{3}$ equilibration steps and the for $10^{5}$ production steps, in order to keep the simulated water at 300 K and 1 atm.
+
+\subsection{Results}
+The trajectories were first analyzed to verify the thermodynamic stability of the simulation. 
+All simulations were stable in temperature and total energy with deviations within 4 \% margin, see Fig. \ref{log}.\\
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=0.6\textwidth]{log 8}
+	\caption{Plot of temperature and potential energy deviations during the simulation of water between two walls 25 \r{A} apart from each other.}
+	\label{log}
+\end{figure}
+\subsubsection{Structure and confinement}
+Furthermore, the effect of confinement on radial distribution function and the density profile across the section of the two walls were calculated and a sample of the acquired data can be seen in Fig. \ref{g-rho}.
 \begin{figure}[h!]
 	\centering
 	\begin{subfigure}{0.4\textwidth}
-		\includegraphics[width=\textwidth]{grafico-bande-paper}
+		\includegraphics[width=\textwidth]{plotgOO}
 	\end{subfigure}
 	\begin{subfigure}{0.4\textwidth}
-		\includegraphics[width=\textwidth]{bande-cfr-paper}
-	\end{subfigure}
-	\caption{(left) Band structure computed in this study and (right) band structure computed in ref.\cite{mishra_electronic_2017}.}
-	\label{cfr-bands}
+		\includegraphics[width=\textwidth]{plot rho}
+	\end{subfigure}	
+	\caption{(\textit{Left}) Plot of the radial distribution function of the O-O pair and (\textit{Right}) Plot of density profile along \textit{z} for walls sitting at 9.4 \r{A}, 18.7 \r{A} and 31.2 \r{A}.}
+	\label{g-rho}
 \end{figure}
-Despite the good agreement of the band structure with previous works, the computed value for the Fermi level obtained is really different from the one tabulated. 
-Specifically, the obtained value for the Fermi energy is 15.838 eV, while the accepted value is 7.05 eV, which can be expressed as a $112\%$ relative error, highlighting a low reliability in the estimation of this property of the metals from ab initio methods.
-\todo{find reason, ask professor}
-
+From g$_{O-O}$ the characteristic wave like structure that is often observed in water is followed by a decay that begins at radii increasing with the distances of the walls.
+This last effect is an artifact due to the fact that the spherical crown considered to count the number of oxygen atoms sitting at a particular distance is exceeding the boundaries of the box.
+This phenomena becomes visible when not all the sides of the box are equal, which means that when the walls are closer, the effect becomes clearer to see.
+\medskip
+Considering the behavior of $\rho$, it was chosen to normalize the distance between the walls for each data series in order to allow a clearer vision of the confinement effects on the density profile.
+Indeed, when the walls are set to be more than 15 \r{A} from each other, it is possible to identify a stably flat region in the middle where density is roughly 1.
+Vice versa, it is observed that when the walls are closing in, the disturbances in density interact.
+\medskip
+\subsubsection{Self-diffusion}
+Self-diffusion properties were assessed along the confined dimension to obtain D$_{z}$(L).
+On the left side of Fig. \ref{diffz}, it is possible to appreciate how the mobility of water molecules is reduced when the walls are placed closer to one another.
+\begin{figure}[h!]
+	\centering
+	\begin{subfigure}{0.45\textwidth}
+		\includegraphics[width=\textwidth]{plot msd}
+	\end{subfigure}
+	\begin{subfigure}{0.45\textwidth}
+		\includegraphics[width=\textwidth]{plot diffz}
+	\end{subfigure}	
+	\caption{(\textit{Left}) Plot of MSD along \textit{z} over time and (\textit{Right}) Plot of diffusion coefficient against the reciprocal of the distance of the walls.}
+	\label{diffz}
+\end{figure}
+The slope of the Mean Square Displacement (MSD) along \textit{z} is used to calculate the relative diffusion coefficient for each box size.
+$D_{z}$ correlates with the reciprocal of the length of the confined dimension, as demonstrated by Yeh and Hummers (2004)\todo{cite Yeh and Hummers.}.
+In this case $d = 1$ since the motion on the $x,y$ plane is neglected.
+However, in this case the bulk diffusion coefficient estimated is  $D_{0,z} = (3.46 \pm 0.03)\, 10^{-5} \, cm^{2} s^{-1}$ which is an overestimation of the experimental $D_{0} = 2.23 \, 10^{-5}\, cm^{2} s^{-1}$\todo{cite Mills 1973} by $55\%$.
+This could be due to the anisotropy introduced by the presence of the walls.
+Since the only components of the displacement that has been considered so far is along $z$, the study has been repeated on the overall MSD, including the brownian motion along the axis $x$ and $y$, to study the anysotropy in diffusion coefficient.
+The new diffusion-size correlation was established considering always the $z$ side as the confining one and the plot is depicted in Fig. \ref{diff}.
+\begin{figure}
+	\centering
+	\includegraphics[width=0.6\textwidth]{plot diff}
+	\caption{Plot and linear regression of the overall diffusion coefficient of water between two walls placed at different distances.}
+	\label{diff}
+\end{figure}
+In this case, the estimated bulk diffusion coefficient is $D_{0} = (2.36 \pm 0.10)\, 10^{-5} \, cm^{2} s^{-1}$, which is compatible with the experimental value.
+This, however must be reconsidered once the diffusion coefficient is split into its components.
+Since the only anisotropy introduced in the system in a Lennard-Jones potential, the diffusion coefficient tensor will be assumed to be diagonal, with the terms $D_{xx} = D_{yy} \neq D_{zz}$.
+This approach aims at determining the diffusion coefficient on the directions lying on the plane not confined, which will be nominated $D_{x,y} = D_{xx} = D_{yy}$ and can be found by the equation:
+\begin{equation}
+	D_{x,y} = \frac{3}{2}D - \frac{1}{2}D_{z}
+\end{equation}
+This calculation leads to $D_{x,y} = (1.81 \pm 0.09)\, 10^{-5} \, cm^{2} s^{-1}$, which is fairly lower than the expected value for an isotropic behavior.
+Therefore, it has been proven that the presence of interacting walls doesn't affect the overall diffusivity of the enclosed water, but introduces an anisotropic behavior that privileges the diffusion across the section of the system.
 %----------------------------------------------------------------------------------------
 \section*{Conclusion}
-It is possible to conclude that employing a relatively small mesh (3x3x3) and a moderate cut-off energy (40 Ry) leads to an accurate estimation of the lattice parameter, with only $0.4\%$ error and the band structure of a bulk copper crystal. 
-Some properties show a low degree of agreement with the expected values, such as the estimated bulk modulus and the estimated Fermi energy. 
-In particular, the estimation of Fermi energy results to be particularly unreliable for the  
-
+MD simulations were run on a number of configurations differing solely on the distance between the two walls enclosing the water molecules.
+The trajectories were validated to satisfy the thermodynamic requirements for a meaningful evaluation of dynamic properties, such as temperature and potential energy.
+Furthermore, the effect of walls interaction on water structure was discussed by highlighting the differences of RDF and density profile based on the degree of confinement in which the fluid was constrained.
+Ultimately, anisotropy in diffusion coefficient is quantified and imputed to the presence of walls and their interaction with the water molecules is found to promote diffusion along the $z$ axis. 
 %----------------------------------------------------------------------------------------
 
 \bibliography{riferimenti}
