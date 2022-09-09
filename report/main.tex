@@ -67,7 +67,8 @@
 %----------------------------------------------------------------------------------------
 
 \section*{Abstract}
-
+A particularly suitable application of Molecular Dynamics, is the study of nanofluid systems. In this report, the effects on structure and dynamics of water between two walls is discussed to correlate the varying distance between the walls and the reduced self-diffusion observed.
+Lastly, considerations about the anisotropy introduced by the presence of walls are formulated on the basis of the extrapolated bulk diffusion coefficient for the different axis.
 
 %----------------------------------------------------------------------------------------
 
@@ -89,13 +90,13 @@ Thermodynamic and mechanic considerations are linked by a postulate, which state
 	\label{postulate}
 \end{equation}
 Constraints on the evolution of the system are set by the applied ensemble, which is a set of thermodynamic properties that is kept constant during the simulations.
-When simulating dynamic properties, either the $NVE$ micro-canonical ensemble\todo{cite Mark, Nilsson 2001} or the isothermal-isobaric ensemble\todo{cite Jorgensen} can be employed.
+When simulating dynamic properties, either the $NVE$ micro-canonical ensemble\cite{mark_structure_2001} or the isothermal-isobaric ensemble\cite{jorgensen_comparison_1983} can be employed.
 However, the simplification of the interactions necessary to treat classically a system on the molecular scale comes at the cost of accuracy since the specific interactions are appointed arbitrarily through classical fields.
-For this reason, systems often recurring in literature, such as water, have been modeled in a great number of ways to better fit the specific purpose of some studies or to increase consistency with experimental findings.\todo{cite Tsimpanogiannis 2019}
-For example, TIP3P\todo{cite Jorgensen et al. 1983} model represents a reparametrization of the O-O interactions to better fit to the experimental data of the radial distribution function.
-Later, the very same model has been updated to feature the Ewald summation rather than short nonbonded truncation schemes.\todo{cite Price and Brooks 2004}
+For this reason, systems often recurring in literature, such as water, have been modeled in a great number of ways to better fit the specific purpose of some studies or to increase consistency with experimental findings.\cite{tsimpanogiannis_self-diffusion_2019}
+For example, TIP3P\cite{jorgensen_comparison_1983} model represents a reparametrization of the O-O interactions to better fit to the experimental data of the radial distribution function.
+Later, the very same model has been updated to feature the Ewald summation rather than short nonbonded truncation schemes.\cite{price_modified_2004}
 Moreover, the use of Molecular Dynamics has acquired great relevance in the simulation of confined fluids.
-In the work of \todo{cite Yeh \& Hummer}, they arrive to the expression of the relation between the diffusion coefficient for bulk fluids and quantity estimated by applying Periodic Boundary Conditions (PBD), as reported in eq.\ref{Dpbc}.
+In the work of \citet{yeh_system-size_2004}, they arrive to the expression of the relation between the diffusion coefficient for bulk fluids and quantity estimated by applying Periodic Boundary Conditions (PBD), as reported in Eq.\ref{Dpbc}.
 \begin{equation}
 	D_{PBC} = D_{0} - \frac{k_{B}T\xi}{2d \pi \eta L}
 	\label{Dpbc}
@@ -106,8 +107,8 @@ Additionally, from the slope of such regression is possible to estimate the valu
 
 %----------------------------------------------------------------------------------------
 \section{Calculations and Results}
-Calculations were run using the force fields and models provided by prof. Ferrarini using LAMMPS (version 4 May 2022).
-For the analysis of data the \texttt{lammps-thermo} package\todo{cite github lammps-thermo} was used along with Python scripts, analysis of the self-diffusion coefficient was performed on OriginPro 2018 and trajectory visualization was possible thanks to the OVITO application.\todo{cite ovito}
+Calculations were run using the force fields and models provided by prof. Ferrarini using LAMMPS (version 4 May 2022).\cite{thompson_lammps_2022}
+For the analysis of data the \texttt{lammps-thermo}\cite{ryan_s_defever_lammps_thermo_2021} package was used along with Python scripts\cite{matteo_finco_md_water_self_diffusion_2022}, analysis of the self-diffusion coefficient was performed on OriginPro 2018.
 \subsection{Input files}
 Periodic boundary conditions were allowed on all dimensions, while on the confined dimension trespassing was prevented by using a Lennard-Jones 9-3 potential set by the command:
 \begin{verbatim}	
@@ -117,7 +118,7 @@ Periodic boundary conditions were allowed on all dimensions, while on the confin
 This command places a wall that needs a sufficient amount of energy $\epsilon =$ 1 Kcal/mol to not be trespassed, a low enough  Van der Waals radius $\sigma = 1 \r{A}$ and cutoff distance $r_{cut} =$ 2.5 \r{A} to perturb excessively the system enclosed.
 The box was set to allocate replicas of the water molecule with a 10x10 base, to offer enough statistical significance, while the height between 1 to 10 molecules.
 Since the system was found to converge to realistic values of density, the interaction and execution parameters were not varied.
-From an interaction point of view, this meant that the accuracy of long range interactions was kept to the $10^{-5}$ level and the force field was the updated version of TIP3P provided by \todo{cite Price and Brooks}
+From an interaction point of view, this meant that the accuracy of long range interactions was kept to the $10^{-5}$ level and the force field was the updated version of TIP3P provided by \citet{price_modified_2004}.
 Energy and force minimization for the first relaxation step was set to be achieved once they were stable, less than 1000 minimizing iterations and 10000 force-energy evaluations were sufficient  in all cases.
 Velocity distributions were created at 300 K using as seed 1298371.
 The execution of the simulations required the application of the isothermal-isobaric ensemble in stable conditions, first for $10^{3}$ equilibration steps and the for $10^{5}$ production steps, in order to keep the simulated water at 300 K and 1 atm.
@@ -168,11 +169,11 @@ On the left side of Fig. \ref{diffz}, it is possible to appreciate how the mobil
 	\label{diffz}
 \end{figure}
 The slope of the Mean Square Displacement (MSD) along \textit{z} is used to calculate the relative diffusion coefficient for each box size.
-$D_{z}$ correlates with the reciprocal of the length of the confined dimension, as demonstrated by Yeh and Hummers (2004)\todo{cite Yeh and Hummers.}.
+$D_{z}$ correlates with the reciprocal of the length of the confined dimension, as demonstrated by \citet{yeh_system-size_2004}.
 In this case $d = 1$ since the motion on the $x,y$ plane is neglected.
-However, in this case the bulk diffusion coefficient estimated is  $D_{0,z} = (3.46 \pm 0.03)\, 10^{-5} \, cm^{2} s^{-1}$ which is an overestimation of the experimental $D_{0} = 2.23 \, 10^{-5}\, cm^{2} s^{-1}$\todo{cite Mills 1973} by $55\%$.
+However, in this case the bulk diffusion coefficient estimated is  $D_{0,z} = (3.46 \pm 0.03)\, 10^{-5} \, cm^{2} s^{-1}$ which is an overestimation of the experimental $D_{0} = 2.23 \, 10^{-5}\, cm^{2} s^{-1}$\cite{mills_self-diffusion_1973} by $55\%$.
 This could be due to the anisotropy introduced by the presence of the walls.
-Since the only components of the displacement that has been considered so far is along $z$, the study has been repeated on the overall MSD, including the brownian motion along the axis $x$ and $y$, to study the anysotropy in diffusion coefficient.
+Since the only components of the displacement that has been considered so far is along $z$, the study has been repeated on the overall MSD, including the brownian motion along the axis $x$ and $y$, to study the anisotropy in diffusion coefficient.
 The new diffusion-size correlation was established considering always the $z$ side as the confining one and the plot is depicted in Fig. \ref{diff}.
 \begin{figure}
 	\centering
@@ -182,7 +183,7 @@ The new diffusion-size correlation was established considering always the $z$ si
 \end{figure}
 In this case, the estimated bulk diffusion coefficient is $D_{0} = (2.36 \pm 0.10)\, 10^{-5} \, cm^{2} s^{-1}$, which is compatible with the experimental value.
 This, however must be reconsidered once the diffusion coefficient is split into its components.
-Since the only anisotropy introduced in the system in a Lennard-Jones potential, the diffusion coefficient tensor will be assumed to be diagonal, with the terms $D_{xx} = D_{yy} \neq D_{zz}$.
+Since the only anisotropy is introduced in the system by a Lennard-Jones potential, the diffusion coefficient tensor will be assumed as diagonal, with the terms $D_{xx} = D_{yy} \neq D_{zz}$.
 This approach aims at determining the diffusion coefficient on the directions lying on the plane not confined, which will be nominated $D_{x,y} = D_{xx} = D_{yy}$ and can be found by the equation:
 \begin{equation}
 	D_{x,y} = \frac{3}{2}D - \frac{1}{2}D_{z}
@@ -191,11 +192,11 @@ This calculation leads to $D_{x,y} = (1.81 \pm 0.09)\, 10^{-5} \, cm^{2} s^{-1}$
 Therefore, it has been proven that the presence of interacting walls doesn't affect the overall diffusivity of the enclosed water, but introduces an anisotropic behavior that privileges the diffusion across the section of the system.
 %----------------------------------------------------------------------------------------
 \section*{Conclusion}
-MD simulations were run on a number of configurations differing solely on the distance between the two walls enclosing the water molecules.
+MD simulations were run on a number of configurations differing solely on the distance between two walls enclosing the water molecules.
 The trajectories were validated to satisfy the thermodynamic requirements for a meaningful evaluation of dynamic properties, such as temperature and potential energy.
 Furthermore, the effect of walls interaction on water structure was discussed by highlighting the differences of RDF and density profile based on the degree of confinement in which the fluid was constrained.
 Ultimately, anisotropy in diffusion coefficient is quantified and imputed to the presence of walls and their interaction with the water molecules is found to promote diffusion along the $z$ axis. 
 %----------------------------------------------------------------------------------------
 
-\bibliography{riferimenti}
+\bibliography{references}
 \end{document}
